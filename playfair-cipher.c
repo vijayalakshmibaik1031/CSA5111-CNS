@@ -1,74 +1,106 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
-int main()
-{
-    char key[30], text[100], a[5][5];
-    int used[26] = {0}, r, c, i, j, k = 0;
+int main() {
+    char key[100], text[200], matrix[5][5];
+    int used[26] = {0};
+    int i, j, r, c, k = 0;
+    char ch, a, b;
+    int r1, c1, r2, c2;
 
-    printf("Enter key: ");
-    scanf("%s", key);
+    used['J' - 'A'] = 1;
 
-    printf("Enter text: ");
-    scanf("%s", text);
+    printf("Enter the key: ");
+    scanf("%99s", key);
 
-    /* Create 5x5 matrix */
-    for(i = 0; key[i]; i++)
-    {
-        char ch = toupper(key[i]);
-        if(ch == 'J') ch = 'I';
+    printf("Enter the plaintext: ");
+    scanf("%199s", text);
 
-        if(!used[ch-'A'])
-        {
-            a[k/5][k%5] = ch;
-            used[ch-'A'] = 1;
+    // Generate 5x5 key matrix
+    for (i = 0; i < (int)strlen(key); i++) {
+        ch = toupper((unsigned char)key[i]);
+        if (ch == 'J')
+            ch = 'I';
+
+        if (ch >= 'A' && ch <= 'Z' && !used[ch - 'A']) {
+            matrix[k / 5][k % 5] = ch;
+            used[ch - 'A'] = 1;
             k++;
         }
     }
 
-    for(i = 0; i < 26; i++)
-    {
-        if(i == ('J'-'A')) continue;
-
-        if(!used[i])
-        {
-            a[k/5][k%5] = 'A' + i;
-            used[i] = 1;
+    for (ch = 'A'; ch <= 'Z'; ch++) {
+        if (!used[ch - 'A']) {
+            matrix[k / 5][k % 5] = ch;
             k++;
         }
     }
 
-    /* Encryption */
-    for(i = 0; text[i] && text[i+1]; i += 2)
-    {
-        char x = toupper(text[i]);
-        char y = toupper(text[i+1]);
+    printf("\nKey Matrix:\n");
+    for (r = 0; r < 5; r++) {
+        for (c = 0; c < 5; c++)
+            printf("%c ", matrix[r][c]);
+        printf("\n");
+    }
 
-        if(x == 'J') x = 'I';
-        if(y == 'J') y = 'I';
+    // Prepare plaintext
+    char prepared[400];
+    int n = 0;
 
-        for(r = 0; r < 5; r++)
-            for(c = 0; c < 5; c++)
-            {
-                if(a[r][c] == x) { int r1=r,c1=c;
-                    for(j=0;j<5;j++)
-                        for(k=0;k<5;k++)
-                            if(a[j][k]==y)
-                            {
-                                int r2=j,c2=k;
-                                if(r1==r2)
-                                    printf("%c%c",a[r1][(c1+1)%5],
-                                                 a[r2][(c2+1)%5]);
-                                else if(c1==c2)
-                                    printf("%c%c",a[(r1+1)%5][c1],
-                                                 a[(r2+1)%5][c2]);
-                                else
-                                    printf("%c%c",a[r1][c2],a[r2][c1]);
-                            }
+    for (i = 0; text[i] != '\0'; i++) {
+        ch = toupper((unsigned char)text[i]);
+
+        if (ch >= 'A' && ch <= 'Z') {
+            if (ch == 'J')
+                ch = 'I';
+            prepared[n++] = ch;
+        }
+    }
+
+    prepared[n] = '\0';
+
+    // Encrypt pairs, inserting X for repeated letters
+    printf("\nCiphertext: ");
+
+    for (i = 0; i < n; ) {
+        a = prepared[i];
+        b = (i + 1 < n) ? prepared[i + 1] : 'X';
+
+        if (a == b) {
+            b = 'X';
+            i++;
+        } else {
+            i += 2;
+        }
+
+        r1 = c1 = r2 = c2 = 0;
+
+        for (r = 0; r < 5; r++) {
+            for (c = 0; c < 5; c++) {
+                if (matrix[r][c] == a) {
+                    r1 = r;
+                    c1 = c;
+                }
+                if (matrix[r][c] == b) {
+                    r2 = r;
+                    c2 = c;
                 }
             }
+        }
+
+        if (r1 == r2) {
+            printf("%c%c", matrix[r1][(c1 + 1) % 5],
+                           matrix[r2][(c2 + 1) % 5]);
+        } else if (c1 == c2) {
+            printf("%c%c", matrix[(r1 + 1) % 5][c1],
+                           matrix[(r2 + 1) % 5][c2]);
+        } else {
+            printf("%c%c", matrix[r1][c2], matrix[r2][c1]);
+        }
     }
 
+    printf("\n");
     return 0;
 }
