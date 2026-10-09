@@ -1,26 +1,29 @@
 #include <stdio.h>
-#include <string.h>
-
 int main() {
-    char str[100];
-    int key, i;
+    char word[100];
+    int shift, i;
 
-    printf("Enter the text: ");
-    fgets(str, sizeof(str), stdin);
+    printf("Enter a word: ");
+    if (scanf("%99s", word) != 1) {
+        return 1;
+    }
 
-    printf("Enter the key: ");
-    scanf("%d", &key);
+    printf("Enter the shift value (positive or negative): ");
+    if (scanf("%d", &shift) != 1) {
+        return 1;
+    }
+    shift = ((shift % 26) + 26) % 26;
 
-    for (i = 0; str[i] != '\0'; i++) {
-        if (str[i] >= 'A' && str[i] <= 'Z') {
-            str[i] = (str[i] - 'A' + key) % 26 + 'A';
+    for (i = 0; word[i] != '\0'; i++) {
+        if (word[i] >= 'A' && word[i] <= 'Z') {
+            word[i] = (word[i] - 'A' + shift) % 26 + 'A';
         }
-        else if (str[i] >= 'a' && str[i] <= 'z') {
-            str[i] = (str[i] - 'a' + key) % 26 + 'a';
+        else if (word[i] >= 'a' && word[i] <= 'z') {
+            word[i] = (word[i] - 'a' + shift) % 26 + 'a';
         }
     }
 
-    printf("Encrypted text: %s", str);
+    printf("Encrypted word: %s\n", word);
 
     return 0;
 }
